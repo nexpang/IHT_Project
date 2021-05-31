@@ -8,7 +8,10 @@ public class PlayerInputs : MonoBehaviour
 
     public bool Keyjump = false;
     public float KeyHorizontalRaw = 0f;
-    public bool KetDash = false;
+    public bool KeyDash = false;
+    public bool KeyAttack1 = false;
+    public bool KeyAttack2 = false;
+    public bool KeyAttack3 = false;
 
     private void Awake()
     {
@@ -23,6 +26,9 @@ public class PlayerInputs : MonoBehaviour
     {
         Keyjump = Input.GetButtonDown("Jump");
         KeyHorizontalRaw = Input.GetAxisRaw("Horizontal");
-        KetDash = Input.GetButtonDown("Fire3");
+        KeyDash = Input.GetKeyDown(KeyCode.LeftShift);
+        KeyAttack1 = Input.GetMouseButtonDown(0);
+        KeyAttack2 = Input.GetMouseButtonDown(1);
+        KeyAttack3 = Input.GetMouseButtonDown(2);
     }
 }

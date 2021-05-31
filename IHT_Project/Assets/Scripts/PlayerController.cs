@@ -5,23 +5,48 @@ using UnityEngine;
 public class PlayerController : MonoBehaviour {
 
 	static public PlayerController instance;
+
+	private int hp = 3;
+	[SerializeField]
+	private bool isDead = false;
+
 	Animator animator;
 	public float aniSpeed = 1f;
-	public bool isLookRight = true;
-	[SerializeField, Range(1f,10f)]
+	private bool isLookRight = true;
+	[Header("이동 관련")]
+	[SerializeField]
 	private float defaltSpeed = 1f;
 	private float speed = 1f;
 	[SerializeField]
 	private float jumpSpeed = 10f;
 	[SerializeField]
 	private float dashSpeed = 10f;
+
 	private bool isGround = false;
+	private bool cantAny = false;
+
+	private bool isAttacking1 = false;
+	private bool isAttack1 = false;
+	private bool isAttack2 = false;
+	private bool isAttack3 = false;
+
+	private bool isDash = false;
 	private bool isUsingDash = false;
 	private bool iCanDash = true;
+
+	private bool isJump = false;
+	private bool isRun = false;
+
 	private SpriteRenderer spriteRenderer = null;
 	private Rigidbody2D rigid = null;
 
-    private void Awake()
+	[Header("땅체크")]
+	public Transform groundChecker;
+	public LayerMask whatIsGround;
+
+
+
+	private void Awake()
     {
 		instance = this;
 		animator = GetComponent<Animator>();
@@ -34,36 +59,87 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void Update () {
-		Move();
-		Dash();
+		if (isDead)
+			return;
+		if (isGround)
+        {
+            if (!cantAny && !iCanDash)
+                iCanDash = true;
+        }
+
+		if (PlayerInputs.Instance.Keyjump)
+		{
+			isJump = true;
+		}
+
+		isRun = (PlayerInputs.Instance.KeyHorizontalRaw != 0);
+
+        if (PlayerInputs.Instance.KeyDash&&iCanDash && !cantAny)
+        {
+			isDash = true;
+			animator.SetTrigger("skill");
+		}
+
+        if (!cantAny)
+        {
+            if (PlayerInputs.Instance.KeyAttack1 && !isAttacking1)
+            {
+				isAttack1 = true;
+				animator.SetTrigger("attack1");
+			}
+			else if(PlayerInputs.Instance.KeyAttack2)
+            {
+				isAttack2 = true;
+				animator.SetTrigger("attack3");
+			}
+			else if (PlayerInputs.Instance.KeyAttack3)
+			{
+				isAttack3 = true;
+				animator.SetTrigger ("attack2");
+			}
+		}
+
+		animator.SetBool("run", isRun);
+		animator.SetBool("isGround", isGround);
+	}
+    private void FixedUpdate()
+	{
+		if (isDead)
+			return;
+
+		if (isUsingDash)
+			rigid.velocity = new Vector2(rigid.velocity.x, 0f);
+		CheckGround();
+		Run();
+		if (isJump)
+			Jump();
+		if(isDash)
+			Dash();
+		if (isAttack1)
+			attack1();
+		if (isAttack2)
+			attack2();
+		if (isAttack3)
+			attack3();
 	}
 
-    private void Move()
+	public void OnDamage(int damage)
     {
-		Run();
-        if (PlayerInputs.Instance.Keyjump)
+		hp --;
+        if (hp <= 0)
         {
-			Jump();
+			isDead = true;
         }
     }
 
     private void Run() {
-		if (PlayerInputs.Instance.KeyHorizontalRaw != 0)
-		{
-			animator.SetBool("run", true);
-        }
-        else
-        {
-			animator.SetBool("run", false);
+		if (!isRun||PlayerInputs.Instance.KeyHorizontalRaw == 0)
 			return;
-		}
 
 		if (isGround)
 			speed = defaltSpeed;
-		else
-			speed = defaltSpeed / 5f * 3f;
 
-        if (!isUsingDash)
+        if (!cantAny)
 		{
 			rigid.velocity = new Vector2(PlayerInputs.Instance.KeyHorizontalRaw * speed, rigid.velocity.y);
 			spriteRenderer.flipX = (PlayerInputs.Instance.KeyHorizontalRaw < 0);
@@ -71,69 +147,75 @@ public class PlayerController : MonoBehaviour {
 		isLookRight = !spriteRenderer.flipX;
 	}
 
+	private void CheckGround()
+	{
+		isGround = Physics2D.OverlapCircle(groundChecker.position, 0.2f, whatIsGround);
+	}
 	private void Jump() {
-        if (isGround && !isUsingDash)
+        if (isGround && !cantAny)
 		{
+			
 			rigid.AddForce(Vector2.up * jumpSpeed, ForceMode2D.Impulse);
-			animator.SetBool("jump", true);
-        }
+		}
+		isJump = false;
 	}
 
 	private void attack1() {
-		animator.SetTrigger ("attack1");
-	}
-
-	private void attack2() {
-		animator.SetTrigger ("attack2");
+		isAttack1 = false;
+		isAttacking1 = true;
+		Invoke("IDonAttack1", 0.6f);
 	}
 
 	private void attack3() {
-		animator.SetTrigger ("attack3");
+		isAttack3 = false;
+		cantAny = true;
+		Invoke("ICanAnyThing", 0.9f);
 	}
 
-	private void Dash()
-	{
-		if (isUsingDash)
-			rigid.velocity = new Vector2(rigid.velocity.x, 0f);
-		if (!iCanDash || !PlayerInputs.Instance.KetDash)
-			return;
-		isUsingDash = true;
-		iCanDash = false;
+	private void attack2() {
+		isAttack2 = false;
+		cantAny = true;
+		DashMove(5f);
+		rigid.AddForce(Vector2.up * 5f, ForceMode2D.Impulse);
+		Invoke("ICanAnyThing", 1.3f);
+	}
+
+	private void DashMove(float dashSpeed)
+    {
 		Vector2 direct;
 		if (isLookRight)
 			direct = Vector2.right;
 		else
 			direct = Vector2.left;
-		if(isGround)
+
+		if (isGround)
 			rigid.AddForce(direct * dashSpeed * 1.8f, ForceMode2D.Impulse);
 		else
 			rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);
-		animator.SetTrigger ("skill");
-		Invoke("IAmNotDashing", 0.6f);
 	}
-
-	private void IAmNotDashing()
-    {
-		isUsingDash = false;
-		if(isGround)
-			iCanDash = true;
-    }
-
-    private void OnTriggerEnter2D(Collider2D collision)
-    {
-        if (collision.tag == "Ground")
-        {
-			isGround = true;
-			animator.SetBool("jump", false);
-			if (!isUsingDash && !iCanDash)
-				iCanDash = true;
-		}
-	}
-    private void OnTriggerExit2D(Collider2D collision)
+	private void Dash()
 	{
-		if (collision.tag == "Ground")
-		{
-			isGround = false;
-		}
+		isDash = false;
+		cantAny = true;
+		isUsingDash = true;
+		iCanDash = false;
+
+		DashMove(this.dashSpeed);
+		Invoke("IDontDash", 0.6f);
 	}
+
+	private void IDonAttack1()
+    {
+		isAttacking1 = false;
+    }
+	private void IDontDash()
+	{
+		cantAny = false;
+		isUsingDash = false;
+	}
+
+	private void ICanAnyThing()
+    {
+		cantAny = false;
+    }
 }
