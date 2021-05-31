@@ -1346,8 +1346,10 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   aniSpeed: 1
+  isLookRight: 1
   defaltSpeed: 5
   jumpSpeed: 10
+  dashSpeed: 10
 --- !u!212 &5580348635106969893
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -1455,6 +1457,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   Keyjump: 0
   KeyHorizontalRaw: 0
+  KetDash: 0
 --- !u!50 &5581443509241137577
 Rigidbody2D:
   serializedVersion: 4
@@ -1468,7 +1471,7 @@ Rigidbody2D:
   m_UseFullKinematicContacts: 0
   m_UseAutoMass: 0
   m_Mass: 1
-  m_LinearDrag: 1
+  m_LinearDrag: 2
   m_AngularDrag: 0.05
   m_GravityScale: 1
   m_Material: {fileID: 6200000, guid: 83bb911cc1cdfbe4ea305c558048909b, type: 2}
