@@ -6,9 +6,6 @@ public class Player : MonoBehaviour
 {
     private static Player instance = null;
 
-    [SerializeField]
-    private int hp;
-
     [Header("공격 관련 변수"), SerializeField]
     private int[] attackDamage;
     [SerializeField]
@@ -47,9 +44,8 @@ public class Player : MonoBehaviour
 
     public static void OnDamaged(int damage =1)
     {
-        instance.hp -= damage;
-        Debug.Log(instance.hp);
-        if (instance.hp <= 0)
+        GameManager.instance.hp -= damage;
+        if (GameManager.instance.hp <= 0)
         {
             //게임오버
             PlayerController.instance.IAmDead();

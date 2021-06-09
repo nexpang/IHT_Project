@@ -4,7 +4,26 @@ using UnityEngine;
 
 public class GameManager : MonoBehaviour
 {
-    private int stageNum;
+    public static GameManager instance;
+    public int stageIdx;
+    public int hp;
+
+    private void Awake()
+    {
+        instance = this;
+        DontDestroyOnLoad(gameObject);
+    }
+
+    public void NextStage()
+    {
+        stageIdx++;
+    }
+
+    private void OnDamage()
+    {
+
+    }
+
     void Update()
     {
         
