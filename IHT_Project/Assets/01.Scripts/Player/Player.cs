@@ -42,16 +42,6 @@ public class Player : MonoBehaviour
 
     }
 
-    public static void OnDamaged(int damage =1)
-    {
-        GameManager.instance.hp -= damage;
-        if (GameManager.instance.hp <= 0)
-        {
-            //게임오버
-            PlayerController.instance.IAmDead();
-        }
-    }
-
     public static void Attack1(bool isRight)
     {
         if (isRight)

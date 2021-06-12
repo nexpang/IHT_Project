@@ -19,12 +19,21 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     float speed;
 
+    private Vector3 moveDirection = Vector3.left;
+
+    [SerializeField]
+    private GameObject stunEffect = null;
     [SerializeField]
     private LayerMask isPlayer;
 
+    [SerializeField]
+    private int id = 1;
+
+    
+
     void Start()
     {
-        
+
     }
 
     void Update()
@@ -36,48 +45,69 @@ public class Enemy : MonoBehaviour
         Move();
     }
 
+    public void SetDirection(bool isRight = true)
+    {
+        if (isRight)
+        {
+            gameObject.GetComponent<SpriteRenderer>().flipX = true;
+            moveDirection = Vector3.left;
+        }
+        else
+        {
+            gameObject.GetComponent<SpriteRenderer>().flipX = false;
+            moveDirection = Vector3.right;
+        }
+    }
+
     public void Move()
     {
-        if (state == EnemyState.STUN)
+        if (state == EnemyState.STUN || state == EnemyState.DEAD)
             return;
-        gameObject.transform.position += Vector3.left * speed * Time.fixedDeltaTime;
+        gameObject.transform.position += moveDirection * speed * Time.fixedDeltaTime;
     }
 
     public void OnDamaged(int damage)
     {
+        Dead();
         Debug.Log("나 맞음");
     }
     public void OnStuned(float stunTime)
     {
         state = EnemyState.STUN;
+        stunEffect.SetActive(true);
         Invoke("Unstun", stunTime);
     }
     public void Unstun()
     {
         if(state == EnemyState.STUN)
-            state = EnemyState.ACTIVE;
-    }
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        if (collision.gameObject.tag == "Player")
         {
-            //Debug.Log("나 플레이어한테 닿음");
-            Player.OnDamaged();
-            Destroy(gameObject);
+            state = EnemyState.ACTIVE;
+            stunEffect.SetActive(false);
         }
+    }
+
+    private void Dead()
+    {
+        if (state == EnemyState.STUN)
+            stunEffect.SetActive(false);
+        state = EnemyState.DEAD;
+        EnemyPooling.ReturnObject(this);
     }
     private void OnTriggerEnter2D(Collider2D collision)
     {
+        if (state == EnemyState.STUN || state == EnemyState.DEAD)
+            return;
         if (collision.gameObject.tag == "Player")
         {
             //Debug.Log("나 플레이어한테 닿음");
-            Player.OnDamaged();
-            Destroy(gameObject);
+
+            StageManager.OnPlayerDamage(id);
+            Dead();
         }
         if (collision.gameObject.tag == "Core")
         {
             //Debug.Log("나 닿음");
-            Destroy(gameObject);
+            Dead();
         }
     }
 }

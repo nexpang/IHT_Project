@@ -164,6 +164,7 @@ public class PlayerController : MonoBehaviour {
 		isAttack1 = false;
 		isAttacking1 = true;
 		Invoke("IDonAttack1", 0.4f);
+		Player.Attack1(isLookRight);
 	}
 
 	private void attack3() {
@@ -199,7 +200,6 @@ public class PlayerController : MonoBehaviour {
 	public void IAmDead()
     {
 		state = PlayerState.DEAD;
-		Debug.Log("나죽음");
     }
 	private void Dash()
 	{
@@ -216,11 +216,10 @@ public class PlayerController : MonoBehaviour {
     {
 		isAttacking1 = false;
 		animator.speed = aniSpeed;
-		Player.Attack1(isLookRight);
 	}
 	private void IAttack2Enemy()
 	{
-		Debug.Log("탕");
+		//Debug.Log("탕");
 		Player.Attack2(isLookRight);
 	}
 	private void IAttack3Enemy()
