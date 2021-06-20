@@ -20,7 +20,7 @@ public class StageManager : MonoBehaviour
 
     public Sprite[] spBackGround;
 
-    private bool isNight = false;
+    //private bool isNight = false;
 
 
     [SerializeField]
@@ -35,6 +35,7 @@ public class StageManager : MonoBehaviour
     private WaitForSeconds spawnCool = new WaitForSeconds(5f);
 
     public int hp;
+    public int coreHp;
 
     private void Awake()
     {
@@ -65,20 +66,37 @@ public class StageManager : MonoBehaviour
             if (instance.hp >= 3)
                 return;
             instance.hp++;
-            Debug.Log(instance.hp);
+            //Debug.Log(instance.hp);
             for(int i =0; i<instance.hp; i++)
             {
-                Debug.Log(i);
+                //Debug.Log(i);
                 instance.iHps[i].sprite = instance.sHp[0];
             }
+        }
+    }
+    public static void OnCoreDamage(int enemyId)
+    {
+        bool hateIt = false;
+        for (int i = 0; i < instance.hateEnemies.Length; i++)
+        {
+            if (enemyId == instance.hateEnemies[i])
+                hateIt = true;
+        }
+        if (hateIt)
+        {
+
+        }
+        else
+        {
+
         }
     }
     void Start()
     {
         hp = 3;
         StartCoroutine(ChangeNight());
-        StartCoroutine(SpawnRightEnemy());
-        StartCoroutine(SpawnLeftEnemy());
+        StartCoroutine(SpawnRightEnemy(1));
+        StartCoroutine(SpawnLeftEnemy(0));
     }
 
     void Update()
@@ -97,25 +115,27 @@ public class StageManager : MonoBehaviour
         {
             backGround[i].sprite = spBackGround[3];
         }
-        isNight = true;
+        //isNight = true;
     }
 
-    private IEnumerator SpawnRightEnemy()
+    private IEnumerator SpawnRightEnemy(int id)
     {
-        Enemy e = EnemyPooling.GetObject();
+        id++;
+        Enemy e = EnemyPooling.GetObject(id%3);
         e.transform.position = rightSpawnPoint.position;
         e.SetDirection();
 
         yield return spawnCool;
-        StartCoroutine(SpawnRightEnemy());
+        StartCoroutine(SpawnRightEnemy(id));
     }
-    private IEnumerator SpawnLeftEnemy()
+    private IEnumerator SpawnLeftEnemy(int id)
     {
-        Enemy e = EnemyPooling.GetObject();
+        id++;
+        Enemy e = EnemyPooling.GetObject(id%3);
         e.transform.position = leftSpawnPoint.position;
         e.SetDirection(false);
 
         yield return spawnCool;
-        StartCoroutine(SpawnLeftEnemy());
+        StartCoroutine(SpawnLeftEnemy(id));
     }
 }

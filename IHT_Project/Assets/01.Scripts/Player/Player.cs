@@ -6,6 +6,11 @@ public class Player : MonoBehaviour
 {
     private static Player instance = null;
 
+    private AudioSource audioSource;
+    [SerializeField] private AudioClip audioAttack1;
+    [SerializeField] private AudioClip audioAttack2;
+    [SerializeField] private AudioClip audioAttack3;
+
     [Header("공격 관련 변수"), SerializeField]
     private int[] attackDamage;
     [SerializeField]
@@ -33,7 +38,7 @@ public class Player : MonoBehaviour
     }
     void Start()
     {
-        
+        audioSource = GetComponent<AudioSource>();
     }
 
     // Update is called once per frame
@@ -42,8 +47,15 @@ public class Player : MonoBehaviour
 
     }
 
+    private void PlaySound(AudioClip ac)
+    {
+        audioSource.clip = ac;
+        audioSource.Play();
+    }
+
     public static void Attack1(bool isRight)
     {
+        instance.PlaySound(instance.audioAttack1);
         if (isRight)
             instance.direction = Vector2.one;
         else
@@ -111,7 +123,6 @@ public class Player : MonoBehaviour
             }
         }*/
     }
-
 
     private void OnDrawGizmosSelected()
     {

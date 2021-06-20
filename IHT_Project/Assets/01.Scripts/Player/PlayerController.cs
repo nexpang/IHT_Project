@@ -191,10 +191,12 @@ public class PlayerController : MonoBehaviour {
 		else
 			direct = Vector2.left;
 
+		rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);
+		/*
 		if (isGround)
 			rigid.AddForce(direct * dashSpeed * 1.8f, ForceMode2D.Impulse);
 		else
-			rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);
+			rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);*/
 	}
 
 	public void IAmDead()
@@ -207,8 +209,8 @@ public class PlayerController : MonoBehaviour {
 		cantAny = true;
 		isUsingDash = true;
 		iCanDash = false;
-
 		DashMove(this.dashSpeed);
+		GetComponent<CapsuleCollider2D>().enabled = false;
 		Invoke("IDontDash", 0.6f);
 	}
 
@@ -228,6 +230,7 @@ public class PlayerController : MonoBehaviour {
 	}
 	private void IDontDash()
 	{
+		GetComponent<CapsuleCollider2D>().enabled = true;
 		cantAny = false;
 		isUsingDash = false;
 	}
