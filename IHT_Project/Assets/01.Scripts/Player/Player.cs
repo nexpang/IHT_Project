@@ -94,7 +94,7 @@ public class Player : MonoBehaviour
             {
                 case 1:
                 case 2:
-                    enemy.OnDamaged(attackDamage[attackNum - 1]);
+                    enemy.OnDamaged(attackDamage[attackNum - 1], attackNum);
                     break;
                 case 3:
                     enemy.OnStuned(2.5f);
@@ -122,6 +122,16 @@ public class Player : MonoBehaviour
                     break;
             }
         }*/
+    }
+
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("DeathZone"))
+        {
+            StageManager.OnPlayerDamage(-1);
+            GetComponent<Rigidbody2D>().velocity = Vector2.zero;
+            transform.position = Vector3.zero;
+        }
     }
 
     private void OnDrawGizmosSelected()

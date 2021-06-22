@@ -74,7 +74,7 @@ public class Enemy : MonoBehaviour
         gameObject.transform.position += moveDirection * speed * Time.fixedDeltaTime;
     }
 
-    public virtual void OnDamaged(int damage)
+    public virtual void OnDamaged(int damage, int attackNum)
     {
         Dead();
         //Debug.Log("Á×À½");
@@ -129,6 +129,7 @@ public class Enemy : MonoBehaviour
         if (collision.CompareTag("Core"))
         {
             //Debug.Log("³ª ´êÀ½");
+            StageManager.OnCoreDamage(id);
             Dead();
         }
         if(collision.CompareTag("DeathZone"))

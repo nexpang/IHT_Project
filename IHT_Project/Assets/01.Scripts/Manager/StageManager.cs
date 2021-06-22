@@ -32,10 +32,29 @@ public class StageManager : MonoBehaviour
     [SerializeField]
     private Sprite[] sHp = null;
 
+    [SerializeField]
+    private Image coreHPUI = null;
+
     private WaitForSeconds spawnCool = new WaitForSeconds(5f);
 
     public int hp;
+    private float maxImageWidth;
     public int coreHp;
+    public int clearHp;
+
+    [SerializeField]
+    private GameObject deadPanel = null;
+    [SerializeField]
+    private GameObject clearPanel = null;
+
+    public void RestartStage()
+    {
+        GameManager.RestartStage();
+    }
+    public void QuitMenu()
+    {
+        GameManager.QuitMenu();
+    }
 
     private void Awake()
     {
@@ -59,6 +78,22 @@ public class StageManager : MonoBehaviour
             if (instance.hp <= 0)
             {
                 PlayerController.instance.IAmDead();
+                instance.deadPanel.SetActive(true);
+                Time.timeScale = 0;
+            }
+        }
+        else if(enemyId == -1)
+        {
+            instance.hp--;
+            for (int i = 2; i >= instance.hp; i--)
+            {
+                instance.iHps[i].sprite = instance.sHp[1];
+            }
+            if (instance.hp <= 0)
+            {
+                PlayerController.instance.IAmDead();
+                instance.deadPanel.SetActive(true);
+                Time.timeScale = 0;
             }
         }
         else
@@ -84,16 +119,37 @@ public class StageManager : MonoBehaviour
         }
         if (hateIt)
         {
-
+            instance.coreHp -= GameManager.GetDamage(enemyId);
+            if (instance.coreHp <= 0)
+            {
+                PlayerController.instance.IAmDead();
+                instance.deadPanel.SetActive(true);
+                Time.timeScale = 0;
+            }
         }
         else
         {
+            instance.coreHp += GameManager.GetDamage(enemyId);
+            if (instance.coreHp >= instance.clearHp)
+            {
+                instance.clearPanel.SetActive(true);
+                Time.timeScale = 0;
+            }
 
         }
+        instance.SetCoreHPUI();
     }
+
+    private void SetCoreHPUI()
+    {
+        coreHPUI.rectTransform.sizeDelta = new Vector2(Mathf.Clamp( (float)coreHp /(float)clearHp, 0, 1 ) * maxImageWidth, coreHPUI.rectTransform.rect.height);
+    }
+
     void Start()
     {
         hp = 3;
+        maxImageWidth = coreHPUI.rectTransform.rect.width;
+        SetCoreHPUI();
         StartCoroutine(ChangeNight());
         StartCoroutine(SpawnRightEnemy(1));
         StartCoroutine(SpawnLeftEnemy(0));
@@ -103,6 +159,7 @@ public class StageManager : MonoBehaviour
     {
 
     }
+
     IEnumerator ChangeNight()
     {
         yield return new WaitForSeconds(chaginNightTime);

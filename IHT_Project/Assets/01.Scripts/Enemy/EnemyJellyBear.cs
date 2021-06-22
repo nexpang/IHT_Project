@@ -24,9 +24,9 @@ public class EnemyJellyBear : Enemy
         guard.SetActive(true);
     }
 
-    public override void OnDamaged(int damage)
+    public override void OnDamaged(int damage, int attackNum)
     {
-        if(state == EnemyState.STUN)
+        if(state == EnemyState.STUN || attackNum==2)
         {
             Dead();
         }
