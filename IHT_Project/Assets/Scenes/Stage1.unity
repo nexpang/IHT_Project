@@ -3071,7 +3071,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cam: {fileID: 0}
-  scale: 1
+  scale: 1.5
   lerpSpeed: 30
 --- !u!1 &1467999706
 GameObject:
@@ -5357,6 +5357,7 @@ MonoBehaviour:
   whatIsGround:
     serializedVersion: 2
     m_Bits: 64
+  audioDash: {fileID: 8300000, guid: e6730cfe75c726841aa4d3a9b0175592, type: 3}
 --- !u!212 &5580348635106969893
 SpriteRenderer:
   m_ObjectHideFlags: 0
@@ -5520,7 +5521,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   audioAttack1: {fileID: 8300000, guid: 6c8c0f5ad2b332f488f6f39b69d31c8e, type: 3}
   audioAttack2: {fileID: 8300000, guid: 6c8c0f5ad2b332f488f6f39b69d31c8e, type: 3}
-  audioAttack3: {fileID: 8300000, guid: 6c8c0f5ad2b332f488f6f39b69d31c8e, type: 3}
+  audioAttack3: {fileID: 8300000, guid: 76e4454f15374414aa1405da63ad67e3, type: 3}
   attackDamage: 0100000003000000
   sturnTime: 0
   attack1size: {x: 1, y: 0.8}

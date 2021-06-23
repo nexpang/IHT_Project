@@ -51,6 +51,9 @@ public class PlayerController : MonoBehaviour {
 	public Transform groundChecker;
 	public LayerMask whatIsGround;
 
+	[SerializeField]
+	public AudioClip audioDash;
+	private AudioSource audioSource;
 
 
 	private void Awake()
@@ -63,6 +66,7 @@ public class PlayerController : MonoBehaviour {
 
     void Start () {
 		animator.speed = aniSpeed;
+		audioSource = GetComponent<AudioSource>();
 	}
 
 	void Update () {
@@ -190,6 +194,9 @@ public class PlayerController : MonoBehaviour {
 			direct = Vector2.right;
 		else
 			direct = Vector2.left;
+
+		audioSource.clip = audioDash;
+		audioSource.Play();
 
 		rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);
 		/*

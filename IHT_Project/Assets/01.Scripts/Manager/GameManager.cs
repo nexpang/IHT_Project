@@ -55,13 +55,20 @@ public class GameManager : MonoBehaviour
 
     void Update()
     {
-        if(SceneManager.GetActiveScene().buildIndex == 0)
-        {
-            SceneManager.LoadScene(1); // µð¹ö±×
-        }
+
     }
     void Start()
     {
 
+    }
+
+    public void OnBtnSolo()
+    {
+        SceneManager.LoadScene(1);
+    }
+
+    public void OnBtnMulti()
+    {
+        //SceneManager.LoadScene(2);
     }
 }

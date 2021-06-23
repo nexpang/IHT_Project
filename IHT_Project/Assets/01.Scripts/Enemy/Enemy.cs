@@ -31,11 +31,18 @@ public class Enemy : MonoBehaviour
     [SerializeField]
     public int id = 1;
 
-    
+
+    [SerializeField]
+    protected AudioClip audioHit;
+    protected AudioSource audioSource;
+
+    protected BoxCollider2D boxCollider;
 
     protected void Start()
     {
         rigid = GetComponent<Rigidbody2D>();
+        audioSource = GetComponent<AudioSource>();
+        boxCollider = GetComponent<BoxCollider2D>();
     }
 
     protected virtual void OnEnable()
@@ -65,6 +72,8 @@ public class Enemy : MonoBehaviour
             gameObject.GetComponent<SpriteRenderer>().flipX = false;
             moveDirection = Vector3.right;
         }
+        state = EnemyState.ACTIVE;
+        stunEffect.SetActive(false);
     }
 
     public void Move()
@@ -76,7 +85,9 @@ public class Enemy : MonoBehaviour
 
     public virtual void OnDamaged(int damage, int attackNum)
     {
-        Dead();
+        audioSource.clip = audioHit;
+        audioSource.Play();
+        StartCoroutine(WaitDead());
         //Debug.Log("죽음");
     }
     public virtual void OnStuned(float stunTime)
@@ -94,6 +105,16 @@ public class Enemy : MonoBehaviour
         }
     }
 
+    public IEnumerator WaitDead()
+    {
+        state = EnemyState.DEAD;
+        boxCollider.isTrigger = true;
+        yield return new WaitForSeconds(2f);
+        boxCollider.isTrigger = false;
+        if (state == EnemyState.STUN)
+            Unstun();
+        EnemyPooling.ReturnObject(this, id);
+    }
     public void Dead()
     {
         if (state == EnemyState.STUN)
@@ -101,15 +122,15 @@ public class Enemy : MonoBehaviour
         state = EnemyState.DEAD;
         EnemyPooling.ReturnObject(this, id);
     }
-
     private void OnCollisionEnter2D(Collision2D collision)
     {
+        if (state == EnemyState.DEAD)
+            return;
         if (collision.gameObject.CompareTag("Player"))
         {
-            if (state == EnemyState.STUN || state == EnemyState.DEAD)
+            if (state == EnemyState.STUN)
                 return;
             //Debug.Log("나 플레이어한테 닿음");
-
             StageManager.OnPlayerDamage(id);
             Dead();
         }

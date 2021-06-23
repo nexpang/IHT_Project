@@ -64,6 +64,7 @@ public class Player : MonoBehaviour
     }
     public static void Attack2(bool isRight)
     {
+        instance.PlaySound(instance.audioAttack2);
         //Debug.Log("공격2");
         if (isRight)
             instance.direction = Vector2.one;
@@ -73,6 +74,7 @@ public class Player : MonoBehaviour
     }
     public static void Attack3(bool isRight)
     {
+        instance.PlaySound(instance.audioAttack3);
         //Debug.Log("공격3");
         if (isRight)
             instance.direction = Vector2.one;

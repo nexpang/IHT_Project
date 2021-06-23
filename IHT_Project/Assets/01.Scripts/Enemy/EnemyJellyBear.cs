@@ -13,7 +13,7 @@ public class EnemyJellyBear : Enemy
     private GameObject guard;
 
     [SerializeField]
-    private AudioSource audioSource;
+    private AudioClip audioGuard;
     private new void FixedUpdate()
     {
         Move();
@@ -28,17 +28,21 @@ public class EnemyJellyBear : Enemy
     {
         if(state == EnemyState.STUN || attackNum==2)
         {
-            Dead();
+            audioSource.clip = audioHit;
+            audioSource.Play();
+            StartCoroutine(WaitDead());
         }
         else
         {
+            audioSource.clip = audioGuard;
             audioSource.Play();
         }
     }
     public override void OnStuned(float stunTime)
     {
         base.OnStuned(stunTime);
-        guard.SetActive(false);
+        if(state != EnemyState.DEAD)
+            guard.SetActive(false);
     }
     public override void Unstun()
     {

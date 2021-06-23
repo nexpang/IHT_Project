@@ -47,6 +47,7 @@ public class StageManager : MonoBehaviour
     [SerializeField]
     private GameObject clearPanel = null;
 
+    private AudioSource audioSource;
     public void RestartStage()
     {
         GameManager.RestartStage();
@@ -59,6 +60,7 @@ public class StageManager : MonoBehaviour
     private void Awake()
     {
         instance = this;
+        audioSource = GetComponent<AudioSource>();
     }
     public static void OnPlayerDamage(int enemyId)
     {
@@ -80,6 +82,7 @@ public class StageManager : MonoBehaviour
                 PlayerController.instance.IAmDead();
                 instance.deadPanel.SetActive(true);
                 Time.timeScale = 0;
+                instance.audioSource.Stop();
             }
         }
         else if(enemyId == -1)
@@ -94,6 +97,7 @@ public class StageManager : MonoBehaviour
                 PlayerController.instance.IAmDead();
                 instance.deadPanel.SetActive(true);
                 Time.timeScale = 0;
+                instance.audioSource.Stop();
             }
         }
         else
@@ -125,6 +129,7 @@ public class StageManager : MonoBehaviour
                 PlayerController.instance.IAmDead();
                 instance.deadPanel.SetActive(true);
                 Time.timeScale = 0;
+                instance.audioSource.Stop();
             }
         }
         else
@@ -133,6 +138,7 @@ public class StageManager : MonoBehaviour
             if (instance.coreHp >= instance.clearHp)
             {
                 instance.clearPanel.SetActive(true);
+                instance.audioSource.Stop();
                 Time.timeScale = 0;
             }
 

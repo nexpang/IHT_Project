@@ -155,10 +155,11 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 512
   id: 1
+  audioHit: {fileID: 8300000, guid: b653c078629141d4897ce640b8afdf32, type: 3}
   jumpForce: 7
   jumpDelay: 2
   guard: {fileID: 3513783267928640507}
-  audioSource: {fileID: 8369527605034118662}
+  audioGuard: {fileID: 8300000, guid: 5c5a735a1aefd9747a9cf06066037427, type: 3}
 --- !u!82 &8369527605034118662
 AudioSource:
   m_ObjectHideFlags: 0
@@ -171,13 +172,13 @@ AudioSource:
   OutputAudioMixerGroup: {fileID: 0}
   m_audioClip: {fileID: 8300000, guid: 5c5a735a1aefd9747a9cf06066037427, type: 3}
   m_PlayOnAwake: 0
-  m_Volume: 0.6
-  m_Pitch: 0.5
+  m_Volume: 1
+  m_Pitch: 1
   Loop: 0
   Mute: 0
   Spatialize: 0
   SpatializePostEffects: 0
-  Priority: 50
+  Priority: 128
   DopplerLevel: 1
   MinDistance: 1
   MaxDistance: 500
