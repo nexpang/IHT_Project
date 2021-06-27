@@ -27,7 +27,12 @@ public class SocketClient : MonoBehaviour
     void Start()
     {
         handlerDictionary.Add("CHAT", handers.GetComponent<ChatHandler>());
+        handlerDictionary.Add("LOGIN", handers.GetComponent<LoginHandler>());
         handlerDictionary.Add("RESET_ROOM", handers.GetComponent<ResetRoomHandler>());
+        handlerDictionary.Add("GO_ROOM", handers.GetComponent<GoRoomHandler>());
+        handlerDictionary.Add("GO_LOOBY", handers.GetComponent<GoLoobyHandler>());
+        handlerDictionary.Add("RESET_USER", handers.GetComponent<ResetUserHandler>());
+        handlerDictionary.Add("ERROR", handers.GetComponent<ErrorHandler>());
 
 
         webSocket = new WebSocket($"{url}:{port}");
@@ -58,5 +63,12 @@ public class SocketClient : MonoBehaviour
     private void SendData(string json)
     {
         webSocket.Send(json);
+    }
+
+    private void OnDestroy()
+    {
+        webSocket.Close();
+        //if (webSocket.ReadyState == WebSocketState.Connecting)
+        //    webSocket.Close();
     }
 }

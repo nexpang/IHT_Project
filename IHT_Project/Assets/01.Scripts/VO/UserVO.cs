@@ -2,20 +2,20 @@ using UnityEngine;
 using System;
 
 [Serializable]
-public class RoomVO
+public class UserVO
 {
     public string name;
     public int roomNum;
-    public int number;
+    public int socketId;
 
-    public RoomVO(string name, int roomNum, int number)
+    public UserVO(int roomNum, string name, int socketId)
     {
         this.name = name;
         this.roomNum = roomNum;
-        this.number = number;
+        this.socketId = socketId;
     }
 
-    public RoomVO()
+    public UserVO()
     {
 
     }

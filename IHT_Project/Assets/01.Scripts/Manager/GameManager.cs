@@ -62,13 +62,13 @@ public class GameManager : MonoBehaviour
 
     }
 
-    public void OnBtnSolo()
+    public static void OnBtnSolo()
     {
         SceneManager.LoadScene(1);
     }
 
-    public void OnBtnMulti()
+    public static void OnBtnMulti()
     {
-        //SceneManager.LoadScene(2);
+        SceneManager.LoadScene(2);
     }
 }
