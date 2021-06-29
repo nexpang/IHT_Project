@@ -75,6 +75,7 @@ public class MultiGameManager : MonoBehaviour
     public Queue<Vector3> transformQueue = new Queue<Vector3>();
     public Queue<string> errorQueue = new Queue<string>();
     public Queue<int> damagedQueue = new Queue<int>();
+    public Queue<float> stunedQueue = new Queue<float>();
     private void Awake()
     {
         if (instance != null)
@@ -207,6 +208,14 @@ public class MultiGameManager : MonoBehaviour
             instance.damagedQueue.Enqueue(hp);
         }
     }
+    public static void SetStuned(float stunTime)
+    {
+        lock (instance.lockObj)
+        {
+            instance.stunedQueue.Enqueue(stunTime);
+        }
+    }
+    
     public static void SetDead()
     {
         lock (instance.lockObj)
@@ -327,6 +336,11 @@ public class MultiGameManager : MonoBehaviour
         {
             int hp = damagedQueue.Dequeue();
             otherPlayerRPC.SetHp(hp);
+        }
+        while (stunedQueue.Count > 0)
+        {
+            float stunTime = stunedQueue.Dequeue();
+            otherPlayerRPC.SetStun(stunTime);
         }
         if (needSetDead)
         {

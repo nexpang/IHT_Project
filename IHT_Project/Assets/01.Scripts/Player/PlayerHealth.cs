@@ -10,6 +10,7 @@ public class PlayerHealth : MonoBehaviour
     public Image[] iHps = null;
     public Sprite[] sHp = null;
     public int hp;
+    public GameObject stunedEffect;
     // Start is called before the first frame update
     void Start()
     {
@@ -24,6 +25,7 @@ public class PlayerHealth : MonoBehaviour
     public void Spawn()
     {
         hp = 3;
+        UnStun();
         SetHp();
         isDead = false;
     }
@@ -42,7 +44,26 @@ public class PlayerHealth : MonoBehaviour
     }
     public void OnStuned(float stunTime)
     {
+        if (isRemote) return;
 
+        OnStun(stunTime);
+
+        StunedVO vo = new StunedVO(stunTime);
+        DataVO dataVO = new DataVO();
+        dataVO.type = "STUNED";
+        dataVO.payload = JsonUtility.ToJson(vo);
+        SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+    }
+    public void OnStun(float stunTime)
+    {
+        stunedEffect.SetActive(true);
+        GetComponent<PlayerController>().OnStun();
+        Invoke("UnStun", stunTime);
+    }
+    public void UnStun()
+    {
+        stunedEffect.SetActive(false);
+        GetComponent<PlayerController>().UnStun();
     }
     public void OnDamage(int damage)
     {

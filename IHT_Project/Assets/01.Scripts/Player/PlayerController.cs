@@ -6,7 +6,8 @@ public enum PlayerState
 {
 	ACTIVE = 0,
 	DEAD = 1,
-	INVINCIBILITY = 2
+	INVINCIBILITY = 2,
+	STUNED = 3
 }
 
 
@@ -17,8 +18,7 @@ public class PlayerController : MonoBehaviour {
 	public PlayerInputs inputs;
 	public Player player;
 
-	[SerializeField]
-	private PlayerState state;
+	public PlayerState state;
 
 	public Animator animator;
 	public float aniSpeed = 1f;
@@ -78,7 +78,7 @@ public class PlayerController : MonoBehaviour {
 	}
 
 	void Update () {
-		if (state == PlayerState.DEAD)
+		if (state == PlayerState.DEAD || state == PlayerState.STUNED)
 			return;
 		if (isGround)
         {
@@ -289,4 +289,13 @@ public class PlayerController : MonoBehaviour {
 	{
 		cantAny = false;
     }
+
+	public void OnStun()
+    {
+		state = PlayerState.STUNED;
+    }
+	public void UnStun()
+	{
+		state = PlayerState.ACTIVE;
+	}
 }

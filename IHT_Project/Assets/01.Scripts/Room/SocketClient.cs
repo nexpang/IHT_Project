@@ -41,6 +41,7 @@ public class SocketClient : MonoBehaviour
         handlerDictionary.Add("ATTACK2", handers.GetComponent<Attack2Handler>());
         handlerDictionary.Add("ATTACK3", handers.GetComponent<Attack3Handler>());
         handlerDictionary.Add("DAMAGED", handers.GetComponent<DamagedHandler>());
+        handlerDictionary.Add("STUNED", handers.GetComponent<StunedHandler>());
         handlerDictionary.Add("DEAD", handers.GetComponent<DeadHandler>());
         handlerDictionary.Add("WIN", handers.GetComponent<WinHandler>());
         handlerDictionary.Add("ERROR", handers.GetComponent<ErrorHandler>());
@@ -92,7 +93,7 @@ public class SocketClient : MonoBehaviour
     private void OnDestroy()
     {
         //webSocket.Close();
-        //if (webSocket.ReadyState == WebSocketState.Connecting)
-        webSocket.Close();
+        if (webSocket.ReadyState == WebSocketState.Connecting || webSocket.ReadyState == WebSocketState.Open)
+            webSocket.Close();
     }
 }

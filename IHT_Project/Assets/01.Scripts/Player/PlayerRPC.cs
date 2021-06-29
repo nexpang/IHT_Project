@@ -65,6 +65,10 @@ public class PlayerRPC : MonoBehaviour
         health.hp = hp;
         health.SetHp();
     }
+    public void SetStun(float stunTime)
+    {
+        health.OnStun(stunTime);
+    }
     public void Dead()
     {
         health.Dead();

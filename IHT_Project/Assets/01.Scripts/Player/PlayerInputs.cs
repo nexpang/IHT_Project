@@ -31,7 +31,7 @@ public class PlayerInputs : MonoBehaviour
             KeyAttack2 = Input.GetMouseButtonDown(1);
             KeyAttack3 = Input.GetMouseButtonDown(2);
 
-            if (!isSingle)
+            if (!isSingle || GetComponent<PlayerController>().state != PlayerState.STUNED)
             {
                 if(beforeHorizontalRaw != KeyHorizontalRaw)
                 {

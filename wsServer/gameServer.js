@@ -198,7 +198,7 @@ wsService.on("connection", socket=>{
                 roomBroadcast(sendMsg, socket, transformVo.roomNum);
                 return;
             }
-            if(data.type === "JUMP"||data.type === "DASH"||data.type === "ATTACK1"||data.type === "ATTACK2"||data.type === "ATTACK3" || data.type==="DAMAGED" || data.type==="DEAD")
+            if(data.type === "JUMP"||data.type === "DASH"||data.type === "ATTACK1"||data.type === "ATTACK2"||data.type === "ATTACK3" || data.type==="DAMAGED" || data.type==="DEAD" || data.type==="STUNED")
             {
                 if(socket.state !== SocketState.IN_PLAYING){
                     //sendError("플레이 중이 아닌데 시도를 하였습니다.", socket);
