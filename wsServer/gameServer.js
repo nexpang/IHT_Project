@@ -1,5 +1,5 @@
 const WebSocket = require('ws');
-const port = 36589;
+const port = 31234;
 
 const SocketState = require('./SocketState.js');
 const Vector3 = require('./Vector3.js');
@@ -28,14 +28,29 @@ wsService.on("connection", socket=>{
     socket.on("close", ()=>{
         console.log(`소켓 연결 해제  id: ${socket.id}`);
         let roomNum = socket.room;
-        console.log(`소켓 연결 해제  room: ${socket.room}`);
-        if(socket.room > 0 ){
+        if(socket.room > 0 && socket.state === SocketState.IN_ROOM){
             exitRoom(socket, roomNum);
             wsService.clients.forEach(soc=>{
                 if(soc.room === roomNum)
                     refreshUser(soc, roomNum);
                 if(soc.state === SocketState.IN_LOBBY) 
                     refreshRoom(soc);
+            })
+        }
+        if(socket.state === SocketState.IN_PLAYING)
+        {
+            roomBroadcast(JSON.stringify({type:"WIN"}),socket, roomNum)
+            wsService.clients.forEach(soc=>{
+                if(soc.room === roomNum) {
+                    exitRoom(soc, roomNum);
+                }
+            })
+            if(roomList[roomNum] !== undefined)
+                delete roomList[roomNum];
+            wsService.clients.forEach(soc=>{
+                if(soc.state !== SocketState.IN_LOBBY) 
+                    return;
+                refreshRoom(soc);
             })
         }
         delete connectedSocket[socket.id];
@@ -80,12 +95,13 @@ wsService.on("connection", socket=>{
                 }
                 
                 const roomNum = dataList.length < 1?1:Math.max(...dataList.map(x=>x.roomNum))+1;
-                roomList[roomNum]={name:roomInfoVO.name, roomNum, number:1};
+                roomList[roomNum]={name:roomInfoVO.name, roomNum, number:1, playing:false};
 
                 socket.state = SocketState.IN_ROOM;
                 socket.room = roomNum;
                 if(userList[socket.id] !== undefined){
                     userList[socket.id].roomNum = roomNum;
+                    userList[socket.id].master = true;
                 }
 
                 socket.send(JSON.stringify({type:"GO_ROOM"}))
@@ -94,7 +110,6 @@ wsService.on("connection", socket=>{
                     if(soc.state != SocketState.IN_LOBBY) 
                         return;
                     refreshRoom(soc);
-                    //soc.send(JSON.stringify({type:"RESET_ROOM", payload:JSON.stringify(roomList)}));
                 });
                 refreshUser(socket, roomNum);
             }
@@ -106,13 +121,14 @@ wsService.on("connection", socket=>{
                 let roomNum = JSON.parse(data.payload).roomNum;
                 let targetRoom = roomList[roomNum];
 
-                if(targetRoom === undefined || targetRoom.number >= 2){
+                if(targetRoom === undefined || targetRoom.number >= 2 || targetRoom.playing){
                     sendError("들어갈 수 없는 방입니다.", socket);
                     return;
                 }
                 socket.room = roomNum;
                 if(userList[socket.id] !== undefined){
                     userList[socket.id].roomNum = roomNum;
+                    userList[socket.id].master = false;
                 }
                 socket.state = SocketState.IN_ROOM;
                 targetRoom.number++;
@@ -120,9 +136,10 @@ wsService.on("connection", socket=>{
                 socket.send(JSON.stringify({type:"GO_ROOM"}))
 
                 wsService.clients.forEach(soc=>{
-                    if(soc.room !== roomNum) 
-                        return;
-                    refreshUser(soc, roomNum);
+                    if(soc.room === roomNum)
+                        refreshUser(soc, roomNum);
+                    if(soc.state === SocketState.IN_LOBBY) 
+                        refreshRoom(soc);
                 })
             }
             if(data.type === "EXIT_ROOM"){
@@ -139,6 +156,72 @@ wsService.on("connection", socket=>{
                 wsService.clients.forEach(soc=>{
                     if(soc.room === roomNum)
                         refreshUser(soc, roomNum);
+                    if(soc.state === SocketState.IN_LOBBY) 
+                        refreshRoom(soc);
+                })
+            }
+            if(data.type === "GameStart"){
+                if(socket.state !== SocketState.IN_ROOM){
+                    sendError("방이 아닌 곳에서 시도를 하였습니다.", socket);
+                    return;
+                }
+                let roomNum = JSON.parse(data.payload).roomNum;
+                let targetRoom = roomList[roomNum];
+                if(targetRoom.number < 2){
+                    sendError("인원이 2이상이어야 합니다.", socket);
+                    return;
+                }
+                targetRoom.playing = true;
+                wsService.clients.forEach(soc=>{
+                    if(soc.room === roomNum){
+                        soc.state = SocketState.IN_PLAYING;
+                        soc.send(JSON.stringify({type:"GameStart"}))
+                    }
+                })
+            }
+            if(data.type === "INPUTS"){
+                if(socket.state !== SocketState.IN_PLAYING){
+                    //sendError("플레이 중이 아닌데 시도를 하였습니다.", socket);
+                    return;
+                }
+                let roomNum = socket.room;
+                //console.log(data.payload);
+                let sendMsg = JSON.stringify({type:"INPUTS", payload:data.payload});
+                roomBroadcast(sendMsg, socket, roomNum)
+            }
+            if(data.type === "TRANSFORM"){
+                if(socket.state !== SocketState.IN_PLAYING){
+                    return;
+                }
+                let transformVo = JSON.parse(data.payload);
+                let sendMsg = JSON.stringify({type:"TRANSFORM", payload:data.payload});
+                roomBroadcast(sendMsg, socket, transformVo.roomNum);
+                return;
+            }
+            if(data.type === "JUMP"||data.type === "DASH"||data.type === "ATTACK1"||data.type === "ATTACK2"||data.type === "ATTACK3" || data.type==="DAMAGED" || data.type==="DEAD")
+            {
+                if(socket.state !== SocketState.IN_PLAYING){
+                    //sendError("플레이 중이 아닌데 시도를 하였습니다.", socket);
+                    return;
+                }
+                let roomNum = socket.room;
+                roomBroadcast(msg, socket, roomNum)
+            }
+            if(data.type === "LOSE")
+            {
+                if(socket.state !== SocketState.IN_PLAYING){
+                    //sendError("플레이 중이 아닌데 시도를 하였습니다.", socket);
+                    return;
+                }
+                let roomNum = socket.room;
+                roomBroadcast(JSON.stringify({type:"WIN"}),socket, roomNum);
+                wsService.clients.forEach(soc=>{
+                    if(soc.room === roomNum)
+                        exitRoom(soc, roomNum);
+                })
+                if(roomList[roomNum] !== undefined)
+                    delete roomList[roomNum];
+                wsService.clients.forEach(soc=>{
                     if(soc.state === SocketState.IN_LOBBY) 
                         refreshRoom(soc);
                 })
@@ -162,7 +245,13 @@ function exitRoom(socket, roomNum)
 
     if(targetRoom.number === 0){
         delete roomList[roomNum];
+    }else if(targetRoom.number === 1){
+        wsService.clients.forEach(soc=>{
+            if(soc.room === roomNum)
+                userList[soc.id].master = true;
+        })
     }
+    userList[socket.id].master = false;
 }
 function refreshRoom(socket)
 {
@@ -189,7 +278,7 @@ function sendError(msg, socket)
 {
     socket.send(JSON.stringify({type:"ERROR", payload:msg}));
 }
-function roomBroadcast(msg, socket)
+function roomBroadcast(msg, socket, roomNum)
 {
     wsService.clients.forEach(soc=>{
         if(soc.room !== roomNum || soc.id == socket.id) 

@@ -7,6 +7,8 @@ TagManager:
   - Ground
   - Core
   - DeathZone
+  - Player1
+  - Player2
   layers:
   - Default
   - TransparentFX
@@ -18,8 +20,8 @@ TagManager:
   - Background
   - Enemy
   - Player
-  - 
-  - 
+  - Player1
+  - Player2
   - 
   - 
   - 
@@ -55,4 +57,7 @@ TagManager:
     locked: 0
   - name: Tile
     uniqueID: 3486905953
+    locked: 0
+  - name: UI
+    uniqueID: 551174653
     locked: 0

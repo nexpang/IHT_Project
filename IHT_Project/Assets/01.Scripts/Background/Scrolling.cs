@@ -11,7 +11,7 @@ public class Scrolling : MonoBehaviour
 
     void Start()
     {
-        cam = Camera.main.transform;
+        //cam = Camera.main.transform;
         beforePos = cam.position;
     }
 

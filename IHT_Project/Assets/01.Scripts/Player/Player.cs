@@ -4,7 +4,9 @@ using UnityEngine;
 
 public class Player : MonoBehaviour
 {
-    private static Player instance = null;
+    //private static Player instance = null;
+    public FollowCam followCam;
+    public Scrolling[] scrolling;
 
     private AudioSource audioSource;
     [SerializeField] private AudioClip audioAttack1;
@@ -34,7 +36,7 @@ public class Player : MonoBehaviour
 
     private void Awake()
     {
-        instance = this;
+        //instance = this;
     }
     void Start()
     {
@@ -53,56 +55,86 @@ public class Player : MonoBehaviour
         audioSource.Play();
     }
 
-    public static void Attack1(bool isRight)
+    public void Attack1(bool isRight)
     {
-        instance.PlaySound(instance.audioAttack1);
+        PlaySound(audioAttack1);
         if (isRight)
-            instance.direction = Vector2.one;
+            direction = Vector2.one;
         else
-            instance.direction = new Vector2(-1f,1f);
-        instance.AttackCollision(atkOffset: instance.attack1offset*instance.direction, atkSize: instance.attack1size, 1);
+            direction = new Vector2(-1f,1f);
+        AttackCollision(atkOffset: attack1offset*direction, atkSize: attack1size, 1);
     }
-    public static void Attack2(bool isRight)
+    public void Attack2(bool isRight)
     {
-        instance.PlaySound(instance.audioAttack2);
+        PlaySound(audioAttack2);
         //Debug.Log("°ø°Ý2");
         if (isRight)
-            instance.direction = Vector2.one;
+            direction = Vector2.one;
         else
-            instance.direction = new Vector2(-1f, 1f);
-        instance.AttackCollision(atkOffset: instance.attack2offset * instance.direction, atkSize: instance.attack2size, 2);
+            direction = new Vector2(-1f, 1f);
+        AttackCollision(atkOffset: attack2offset * direction, atkSize: attack2size, 2);
     }
-    public static void Attack3(bool isRight)
+    public void Attack3(bool isRight)
     {
-        instance.PlaySound(instance.audioAttack3);
+        PlaySound(audioAttack3);
         //Debug.Log("°ø°Ý3");
         if (isRight)
-            instance.direction = Vector2.one;
+            direction = Vector2.one;
         else
-            instance.direction = new Vector2(-1f, 1f);
-        instance.AttackCollision(atkOffset: instance.attack3offset * instance.direction, atkSize: instance.attack3size, 3);
+            direction = new Vector2(-1f, 1f);
+        AttackCollision(atkOffset: attack3offset * direction, atkSize: attack3size, 3);
     }
 
 
     private void AttackCollision(Vector3 atkOffset, Vector2 atkSize, int attackNum)
     {
         Vector2 attackPoint = gameObject.transform.position + atkOffset;
-        Collider2D hitEnemie = Physics2D.OverlapBox(attackPoint, atkSize, 0, attackedLayer);
 
-        if (hitEnemie != null)
+        if (GetComponent<PlayerInputs>().isSingle)
         {
-            Enemy enemy = hitEnemie.GetComponent<Enemy>();
-            switch (attackNum)
+            Collider2D hitEnemie = Physics2D.OverlapBox(attackPoint, atkSize, 0, attackedLayer);
+
+            if (hitEnemie != null)
             {
-                case 1:
-                case 2:
-                    enemy.OnDamaged(attackDamage[attackNum - 1], attackNum);
-                    break;
-                case 3:
-                    enemy.OnStuned(2.5f);
-                    break;
-                default:
-                    break;
+                Enemy enemy = hitEnemie.GetComponent<Enemy>();
+                switch (attackNum)
+                {
+                    case 1:
+                    case 2:
+                        enemy.OnDamaged(attackDamage[attackNum - 1], attackNum);
+                        break;
+                    case 3:
+                        enemy.OnStuned(2.5f);
+                        break;
+                    default:
+                        break;
+                }
+            }
+        }
+        else
+        {
+            LayerMask layer = gameObject.layer == 10 ? LayerMask.GetMask("Player2") : LayerMask.GetMask("Player1");
+            //Debug.Log(layer);
+            Collider2D hitPlayer = Physics2D.OverlapBox(attackPoint, atkSize, 0, layer);
+            //Debug.Log(hitPlayer);
+
+            if (hitPlayer != null)
+            {
+                PlayerHealth player = hitPlayer.GetComponent<PlayerHealth>();
+                if (player == GetComponent<PlayerHealth>())
+                    return;
+                switch (attackNum)
+                {
+                    case 1:
+                    case 2:
+                        player.OnDamage(attackDamage[attackNum - 1]);
+                        break;
+                    case 3:
+                        player.OnStuned(1f);
+                        break;
+                    default:
+                        break;
+                }
             }
         }
         /*
@@ -130,9 +162,17 @@ public class Player : MonoBehaviour
     {
         if (collision.CompareTag("DeathZone"))
         {
-            StageManager.OnPlayerDamage(-1);
+            if (GetComponent<PlayerInputs>().isSingle)
+            {
+                StageManager.OnPlayerDamage(-1);
+                transform.position = Vector3.zero;
+            }
+            else
+            {
+                GetComponent<PlayerHealth>().OnDamage(3);
+                //Debug.Log("¶³¾îÁü");
+            }
             GetComponent<Rigidbody2D>().velocity = Vector2.zero;
-            transform.position = Vector3.zero;
         }
     }
 

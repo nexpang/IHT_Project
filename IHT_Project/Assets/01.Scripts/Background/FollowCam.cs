@@ -8,7 +8,7 @@ public class FollowCam : MonoBehaviour
     private Transform playerTrm;
     void Start()
     {
-        
+
     }
 
     // Update is called once per frame
@@ -16,4 +16,10 @@ public class FollowCam : MonoBehaviour
     {
         gameObject.transform.position = new Vector3(playerTrm.position.x, 0f, -10f);
     }
+
+    public void SetTrm(Transform trm)
+    {
+        playerTrm = trm;
+    }
+
 }

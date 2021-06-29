@@ -12,6 +12,7 @@ public class Looby : MonoBehaviour
     public CanvasGroup loobyPanel;
     [Header("방 관련")]
     public CanvasGroup RoomPanel;
+    public Button startBtn;
 
     [Header("에러 팝업 관련")]
     public CanvasGroup errorPopup;
@@ -26,7 +27,10 @@ public class Looby : MonoBehaviour
     {
         
     }
-
+    public void SetMaster(bool isMaster)
+    {
+        startBtn.gameObject.SetActive(isMaster);
+    }
     public void ErrorPopup(string error)
     {
         UIOpen(errorPopup, true);

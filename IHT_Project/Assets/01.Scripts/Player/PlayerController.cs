@@ -14,10 +14,13 @@ public class PlayerController : MonoBehaviour {
 
 	static public PlayerController instance;
 
+	public PlayerInputs inputs;
+	public Player player;
+
 	[SerializeField]
 	private PlayerState state;
 
-	Animator animator;
+	public Animator animator;
 	public float aniSpeed = 1f;
 	private bool isLookRight = true;
 	[Header("이동 관련")]
@@ -33,15 +36,15 @@ public class PlayerController : MonoBehaviour {
 	private bool cantAny = false;
 
 	private bool isAttacking1 = false;
-	private bool isAttack1 = false;
-	private bool isAttack2 = false;
-	private bool isAttack3 = false;
+	public bool isAttack1 = false;
+	public bool isAttack2 = false;
+	public bool isAttack3 = false;
 
-	private bool isDash = false;
+	public bool isDash = false;
 	private bool isUsingDash = false;
 	private bool iCanDash = true;
 
-	private bool isJump = false;
+	public bool isJump = false;
 	private bool isRun = false;
 
 	private SpriteRenderer spriteRenderer = null;
@@ -55,6 +58,8 @@ public class PlayerController : MonoBehaviour {
 	public AudioClip audioDash;
 	private AudioSource audioSource;
 
+	public bool isSingle = true;
+
 
 	private void Awake()
     {
@@ -62,6 +67,9 @@ public class PlayerController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		rigid = GetComponent<Rigidbody2D>();
+		
+		//inputs = GetComponent<PlayerInputs>();
+		//player = GetComponent<Player>();
 	}
 
     void Start () {
@@ -78,36 +86,71 @@ public class PlayerController : MonoBehaviour {
                 iCanDash = true;
         }
 
-		if (PlayerInputs.Instance.Keyjump)
+		if (inputs.Keyjump)
 		{
 			isJump = true;
+
+            if (!isSingle)
+			{
+				DataVO dataVO = new DataVO();
+				dataVO.type = "JUMP";
+				SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+			}
 		}
 
-		isRun = (PlayerInputs.Instance.KeyHorizontalRaw != 0);
+		isRun = (inputs.KeyHorizontalRaw != 0);
 
-        if (PlayerInputs.Instance.KeyDash&&iCanDash && !cantAny)
+        if (inputs.KeyDash&&iCanDash && !cantAny)
         {
 			isDash = true;
 			animator.SetTrigger("skill");
+
+			if (!isSingle)
+			{
+				DataVO dataVO = new DataVO();
+				dataVO.type = "DASH";
+				SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+			}
 		}
 
         if (!cantAny)
         {
-            if (PlayerInputs.Instance.KeyAttack1 && !isAttacking1)
+            if (inputs.KeyAttack1 && !isAttacking1)
             {
 				isAttack1 = true;
 				animator.speed = 2f;
 				animator.SetTrigger("attack1");
+
+				if (!isSingle)
+				{
+					DataVO dataVO = new DataVO();
+					dataVO.type = "ATTACK1";
+					SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+				}
 			}
-			else if(PlayerInputs.Instance.KeyAttack2)
+			else if(inputs.KeyAttack2)
             {
 				isAttack2 = true;
 				animator.SetTrigger("attack3");
+
+				if (!isSingle)
+				{
+					DataVO dataVO = new DataVO();
+					dataVO.type = "ATTACK2";
+					SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+				}
 			}
-			else if (PlayerInputs.Instance.KeyAttack3)
+			else if (inputs.KeyAttack3)
 			{
 				isAttack3 = true;
 				animator.SetTrigger ("attack2");
+
+				if (!isSingle)
+				{
+					DataVO dataVO = new DataVO();
+					dataVO.type = "ATTACK3";
+					SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+				}
 			}
 		}
 
@@ -137,7 +180,7 @@ public class PlayerController : MonoBehaviour {
 
 
     private void Run() {
-		if (!isRun||PlayerInputs.Instance.KeyHorizontalRaw == 0)
+		if (!isRun|| inputs.KeyHorizontalRaw == 0)
 			return;
 
 		if (isGround)
@@ -145,8 +188,8 @@ public class PlayerController : MonoBehaviour {
 
         if (!cantAny)
 		{
-			rigid.velocity = new Vector2(PlayerInputs.Instance.KeyHorizontalRaw * speed, rigid.velocity.y);
-			spriteRenderer.flipX = (PlayerInputs.Instance.KeyHorizontalRaw < 0);
+			rigid.velocity = new Vector2(inputs.KeyHorizontalRaw * speed, rigid.velocity.y);
+			spriteRenderer.flipX = (inputs.KeyHorizontalRaw < 0);
 		}
 		isLookRight = !spriteRenderer.flipX;
 	}
@@ -168,7 +211,7 @@ public class PlayerController : MonoBehaviour {
 		isAttack1 = false;
 		isAttacking1 = true;
 		Invoke("IDonAttack1", 0.4f);
-		Player.Attack1(isLookRight);
+		player.Attack1(isLookRight);
 	}
 
 	private void attack3() {
@@ -199,11 +242,11 @@ public class PlayerController : MonoBehaviour {
 		audioSource.Play();
 
 		rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);
-		/*
+		
 		if (isGround)
 			rigid.AddForce(direct * dashSpeed * 1.8f, ForceMode2D.Impulse);
 		else
-			rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);*/
+			rigid.AddForce(direct * dashSpeed, ForceMode2D.Impulse);
 	}
 
 	public void IAmDead()
@@ -217,7 +260,7 @@ public class PlayerController : MonoBehaviour {
 		isUsingDash = true;
 		iCanDash = false;
 		DashMove(this.dashSpeed);
-		GetComponent<CapsuleCollider2D>().enabled = false;
+		//GetComponent<CapsuleCollider2D>().enabled = false;
 		Invoke("IDontDash", 0.6f);
 	}
 
@@ -229,15 +272,15 @@ public class PlayerController : MonoBehaviour {
 	private void IAttack2Enemy()
 	{
 		//Debug.Log("탕");
-		Player.Attack2(isLookRight);
+		player.Attack2(isLookRight);
 	}
 	private void IAttack3Enemy()
 	{
-		Player.Attack3(isLookRight);
+		player.Attack3(isLookRight);
 	}
 	private void IDontDash()
 	{
-		GetComponent<CapsuleCollider2D>().enabled = true;
+		//GetComponent<CapsuleCollider2D>().enabled = true;
 		cantAny = false;
 		isUsingDash = false;
 	}

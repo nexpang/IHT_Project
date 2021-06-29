@@ -4,8 +4,6 @@ using UnityEngine;
 
 public class PlayerInputs : MonoBehaviour
 {
-    public static PlayerInputs Instance;
-
     public bool Keyjump = false;
     public float KeyHorizontalRaw = 0f;
     public bool KeyDash = false;
@@ -13,10 +11,10 @@ public class PlayerInputs : MonoBehaviour
     public bool KeyAttack2 = false;
     public bool KeyAttack3 = false;
 
-    private void Awake()
-    {
-        Instance = this;
-    }
+    public bool isMyPlayer = true;
+    public bool isSingle = true;
+    public float beforeHorizontalRaw = 0f;
+
     void Start()
     {
         
@@ -24,11 +22,40 @@ public class PlayerInputs : MonoBehaviour
 
     void Update()
     {
-        Keyjump = Input.GetButtonDown("Jump");
-        KeyHorizontalRaw = Input.GetAxisRaw("Horizontal");
-        KeyDash = Input.GetKeyDown(KeyCode.LeftShift);
-        KeyAttack1 = Input.GetMouseButtonDown(0);
-        KeyAttack2 = Input.GetMouseButtonDown(1);
-        KeyAttack3 = Input.GetMouseButtonDown(2);
+        if (isMyPlayer)
+        {
+            Keyjump = Input.GetButtonDown("Jump");
+            KeyHorizontalRaw = Input.GetAxisRaw("Horizontal");
+            KeyDash = Input.GetKeyDown(KeyCode.LeftShift);
+            KeyAttack1 = Input.GetMouseButtonDown(0);
+            KeyAttack2 = Input.GetMouseButtonDown(1);
+            KeyAttack3 = Input.GetMouseButtonDown(2);
+
+            if (!isSingle)
+            {
+                if(beforeHorizontalRaw != KeyHorizontalRaw)
+                {
+                    beforeHorizontalRaw = KeyHorizontalRaw;
+                    InputsVO vo = new InputsVO(KeyHorizontalRaw);
+                    DataVO dataVO = new DataVO();
+                    dataVO.type = "INPUTS";
+                    dataVO.payload = JsonUtility.ToJson(vo);
+                    SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
+                }
+            }
+        }
+    }
+
+    public void SetInputs(float KeyHorizontalRaw)
+    {
+        if (isMyPlayer)
+            return;
+        //Debug.Log("점프 :" + Keyjump + "대쉬 :" +KeyDash);
+        //this.Keyjump = Keyjump;
+        this.KeyHorizontalRaw = KeyHorizontalRaw;
+        //this.KeyDash = KeyDash;
+        //this.KeyAttack1 = KeyAttack1;
+        //this.KeyAttack2 = KeyAttack2;
+        //this.KeyAttack3 = KeyAttack3;
     }
 }
