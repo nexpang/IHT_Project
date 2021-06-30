@@ -24,16 +24,29 @@ public class PlayerInputs : MonoBehaviour
     {
         if (isMyPlayer)
         {
-            Keyjump = Input.GetButtonDown("Jump");
-            KeyHorizontalRaw = Input.GetAxisRaw("Horizontal");
-            KeyDash = Input.GetKeyDown(KeyCode.LeftShift);
-            KeyAttack1 = Input.GetMouseButtonDown(0);
-            KeyAttack2 = Input.GetMouseButtonDown(1);
-            KeyAttack3 = Input.GetMouseButtonDown(2);
 
-            if (!isSingle || GetComponent<PlayerController>().state != PlayerState.STUNED)
+            if (GetComponent<PlayerController>().state != PlayerState.STUNED)
             {
-                if(beforeHorizontalRaw != KeyHorizontalRaw)
+                Keyjump = Input.GetButtonDown("Jump");
+                KeyHorizontalRaw = Input.GetAxisRaw("Horizontal");
+                KeyDash = Input.GetKeyDown(KeyCode.LeftShift);
+                KeyAttack1 = Input.GetMouseButtonDown(0);
+                KeyAttack2 = Input.GetMouseButtonDown(1);
+                KeyAttack3 = Input.GetMouseButtonDown(2);
+            }
+            else
+            {
+                KeyHorizontalRaw = 0f;
+                Keyjump = false;
+                KeyDash = false;
+                KeyAttack1 = false;
+                KeyAttack2 = false;
+                KeyAttack3 = false;
+            }
+            
+            if (!isSingle)
+            {
+                if (beforeHorizontalRaw != KeyHorizontalRaw)
                 {
                     beforeHorizontalRaw = KeyHorizontalRaw;
                     InputsVO vo = new InputsVO(KeyHorizontalRaw);
