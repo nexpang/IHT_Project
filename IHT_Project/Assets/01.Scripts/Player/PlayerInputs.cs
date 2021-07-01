@@ -25,8 +25,11 @@ public class PlayerInputs : MonoBehaviour
         if (isMyPlayer)
         {
 
-            if (GetComponent<PlayerController>().state != PlayerState.STUNED && !GetComponent<PlayerHealth>().isDead)
+            if (GetComponent<PlayerController>().state != PlayerState.STUNED)
             {
+                if (!isSingle)
+                    if (GetComponent<PlayerHealth>().isDead)
+                        return;
                 Keyjump = Input.GetButtonDown("Jump");
                 KeyHorizontalRaw = Input.GetAxisRaw("Horizontal");
                 KeyDash = Input.GetKeyDown(KeyCode.LeftShift);
