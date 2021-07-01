@@ -516,12 +516,14 @@ public class MultiGameManager : MonoBehaviour
     {
         if (isWin)
         {
+            winPanel.DOKill();
             winPanel.interactable = false;
             winPanel.blocksRaycasts = false;
             winPanel.alpha = 0;
         }
         else
         {
+            losePanel.DOKill();
             losePanel.interactable = false;
             losePanel.blocksRaycasts = false;
             losePanel.alpha = 0;

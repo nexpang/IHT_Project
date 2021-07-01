@@ -11,6 +11,11 @@ public class PlayerHealth : MonoBehaviour
     public Sprite[] sHp = null;
     public int hp;
     public GameObject stunedEffect;
+    PlayerRPC rpc;
+    private void Awake()
+    {
+        rpc  = GetComponent<PlayerRPC>();
+    }
     // Start is called before the first frame update
     void Start()
     {
@@ -67,7 +72,7 @@ public class PlayerHealth : MonoBehaviour
     }
     public void OnDamage(int damage)
     {
-        if (isRemote) return;
+        if (isRemote || isDead) return;
         hp-= damage;
         if(hp >= 0)
             SetHp();
@@ -78,7 +83,7 @@ public class PlayerHealth : MonoBehaviour
         dataVO.payload = JsonUtility.ToJson(vo);
         SocketClient.SendDataToSocket(JsonUtility.ToJson(dataVO));
 
-        if (hp <= 0)
+        if (hp <= 0 && !isDead)
         {
             Dead();
         }
@@ -87,7 +92,7 @@ public class PlayerHealth : MonoBehaviour
     {
         if (isDead) return;
         isDead = true;
-        PlayerRPC rpc = GetComponent<PlayerRPC>();
+        
         if (!isRemote)
         {
             DataVO dataVO = new DataVO();
@@ -97,6 +102,14 @@ public class PlayerHealth : MonoBehaviour
         }
 
         MultiGameManager.DeadPlayer(rpc.playerNum);
+
+        StartCoroutine(RespawnProcess());
+        
+    }
+
+    IEnumerator RespawnProcess()
+    {
+        yield return new WaitForSeconds(0.3f);
         rpc.Spawn();
     }
 }

@@ -130,7 +130,7 @@ public class Player : MonoBehaviour
                         player.OnDamage(attackDamage[attackNum - 1]);
                         break;
                     case 3:
-                        player.OnStuned(1.2f);
+                        player.OnStuned(1.5f);
                         break;
                     default:
                         break;
@@ -160,17 +160,16 @@ public class Player : MonoBehaviour
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("DeathZone"))
+        if (collision.CompareTag("DeathZone") )
         {
             if (GetComponent<PlayerInputs>().isSingle)
             {
                 StageManager.OnPlayerDamage(-1);
                 transform.position = Vector3.zero;
             }
-            else
+            else if(!(GetComponent<PlayerHealth>().isRemote))
             {
                 GetComponent<PlayerHealth>().OnDamage(3);
-                //Debug.Log("¶³¾îÁü");
             }
             GetComponent<Rigidbody2D>().velocity = Vector2.zero;
         }
