@@ -130,7 +130,7 @@ public class Player : MonoBehaviour
                         player.OnDamage(attackDamage[attackNum - 1]);
                         break;
                     case 3:
-                        player.OnStuned(1.5f);
+                        player.OnStuned(1.35f);
                         break;
                     default:
                         break;

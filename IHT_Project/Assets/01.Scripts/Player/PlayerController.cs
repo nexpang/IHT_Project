@@ -17,6 +17,7 @@ public class PlayerController : MonoBehaviour {
 
 	public PlayerInputs inputs;
 	public Player player;
+	public PlayerHealth health;
 
 	public PlayerState state;
 
@@ -67,7 +68,7 @@ public class PlayerController : MonoBehaviour {
 		animator = GetComponent<Animator>();
 		spriteRenderer = GetComponent<SpriteRenderer>();
 		rigid = GetComponent<Rigidbody2D>();
-		
+
 		//inputs = GetComponent<PlayerInputs>();
 		//player = GetComponent<Player>();
 	}
@@ -80,6 +81,9 @@ public class PlayerController : MonoBehaviour {
 	void Update () {
 		if (state == PlayerState.DEAD || state == PlayerState.STUNED)
 			return;
+		if (!isSingle)
+			if (GetComponent<PlayerHealth>().isDead)
+				return;
 		if (isGround)
         {
             if (!cantAny && !iCanDash)
